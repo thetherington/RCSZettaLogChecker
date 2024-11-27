@@ -44,6 +44,12 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
+
+	// generate documentation
+	// err = doc.GenMarkdownTree(rootCmd, "docs")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 }
 
 func init() {
