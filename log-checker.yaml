@@ -1,0 +1,4 @@
+host: "localhost"
+zetta_username: "foo"
+zetta_password: "bar"
+key: "whatismykey"
