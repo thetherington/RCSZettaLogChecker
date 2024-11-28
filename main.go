@@ -15,7 +15,9 @@ limitations under the License.
 */
 package main
 
-import "github.com/thetherington/log-checker/cmd"
+import (
+	"github.com/thetherington/log-checker/cmd"
+)
 
 func main() {
 	cmd.Execute()

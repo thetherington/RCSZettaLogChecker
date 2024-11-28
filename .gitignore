@@ -2,4 +2,4 @@ export
 .vscode
 log
 zetta_server
-bin
+log-checker

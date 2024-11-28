@@ -1,16 +1,15 @@
-## log-checker run
+## log-checker version
 
-The run command executes the zetta log check analyzer
+version information
 
 ```
-log-checker run [flags]
+log-checker version [flags]
 ```
 
 ### Options
 
 ```
-  -b, --background   Don't print anything to the console
-  -h, --help         help for run
+  -h, --help   help for version
 ```
 
 ### Options inherited from parent commands
