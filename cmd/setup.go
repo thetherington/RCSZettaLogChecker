@@ -17,8 +17,8 @@ func setupLogCheckerApp(background bool) error {
 	// "2024-03-21"
 	var dateStr string = time.Now().AddDate(0, 0, 1).Format("2006-01-02")
 
-	if viper.GetString("date") != "" {
-		dateStr = viper.GetString("date")
+	if d := viper.GetString("date"); d != "" {
+		dateStr = d
 	}
 
 	cfg := logchecker.AppConfig{
