@@ -1,4 +1,5 @@
 BINARY=log-checker
+MODULE=github.com/thetherington/log-checker
 
 # These are the values we want to pass for version information
 VERSION=`git describe --tags`
@@ -7,10 +8,13 @@ DATE=`date +%FT%T%z`
 BUILTBY=Makefile
 
 # Setup the -ldflags option for go build here, interpolate the variable values
-LDFLAGS=-ldflags "-s -w -X github.com/thetherington/log-checker/cmd.Version=${VERSION} -X github.com/thetherington/log-checker/cmd.Commit=${COMMIT} -X github.com/thetherington/log-checker/cmd.Date=${DATE} -X github.com/thetherington/log-checker/cmd.BuiltBy=${BUILTBY}"
+LDFLAGS=-ldflags "-s -w -X ${MODULE}/cmd.Version=${VERSION} -X ${MODULE}/cmd.Commit=${COMMIT} -X ${MODULE}/cmd.Date=${DATE} -X ${MODULE}/cmd.BuiltBy=${BUILTBY}"
 
 build:
 	go build ${LDFLAGS} -o ${BINARY} main.go
+
+docker_image:
+	docker buildx build -t ${BINARY} -t ${BINARY}:${VERSION} .
 
 # Cleans our project: deletes binaries
 clean:

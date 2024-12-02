@@ -1,0 +1,4 @@
+host: "api.zetta.server"
+zetta_username: "admin"
+zetta_password: "admin"
+key: "secret_api_key"
