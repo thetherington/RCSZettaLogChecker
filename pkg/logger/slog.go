@@ -18,9 +18,9 @@ import (
 var Logger *slog.Logger
 
 // Set sets the logger configuration based on the environment
-func Set(background bool, level slog.Level) {
+func Set(background bool, level slog.Level, fname string) {
 	logRotate := &lumberjack.Logger{
-		Filename:   "log/app.log",
+		Filename:   fname,
 		MaxSize:    10, // megabytes
 		MaxBackups: 3,
 		MaxAge:     28, // days

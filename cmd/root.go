@@ -29,7 +29,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "log-checker",
 	Short: "Zetta Log Checker/Analyzer",
-	Long: `Application that performs the collection and verification of the Zetta Station Logs
+	Long: `Application that performs the collection and verification of the Zetta Station Logs.
 This CLI application can also collect (snapshot) the station logs and run a HTTP simulator server for development and testing
 `,
 	// Uncomment the following line if your bare application

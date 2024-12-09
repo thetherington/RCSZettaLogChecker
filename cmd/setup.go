@@ -11,9 +11,14 @@ import (
 	"github.com/thetherington/log-checker/pkg/logger"
 )
 
-var app logchecker.Application
+// Number of workers in the worker pool
+const NUM_WORKERS = 20
 
-func setupLogCheckerApp(background bool) error {
+// Delay in milliseconds to pace the worker pools
+const PROCESS_DELAY = 80
+
+// create the log checker application
+func createLogCheckerApp(background bool, logname string) (*logchecker.Application, error) {
 	// "2024-03-21"
 	var dateStr string = time.Now().AddDate(0, 0, 1).Format("2006-01-02")
 
@@ -30,12 +35,12 @@ func setupLogCheckerApp(background bool) error {
 		Date:     dateStr,
 	}
 
-	app = logchecker.Application{
+	app := &logchecker.Application{
 		Config: cfg,
 	}
 
 	// Set logger
-	logger.Set(background, slog.LevelDebug)
+	logger.Set(background, slog.LevelDebug, logname)
 
 	// Create the HTTP Client
 	zc := client.New(client.Options{
@@ -53,11 +58,11 @@ func setupLogCheckerApp(background bool) error {
 	// Fetch the station list
 	if err := app.InitStations(); err != nil {
 		initStations.ErrorWithMessage(err.Error())
-		return err
+		return nil, err
 	}
 
 	initStations.Complete()
 	slog.Info("Initialized Stations", "stations", len(app.App.Stations))
 
-	return nil
+	return app, nil
 }

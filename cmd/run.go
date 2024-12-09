@@ -10,6 +10,7 @@ import (
 
 	"github.com/alitto/pond/v2"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/thetherington/log-checker/cmd/logchecker"
 )
 
@@ -22,15 +23,19 @@ var runCmd = &cobra.Command{
 		background, _ := cmd.Flags().GetBool("background")
 
 		// setup the logchecker application
-		if err := setupLogCheckerApp(background); err != nil {
+		app, err := createLogCheckerApp(background, viper.GetString("output"))
+		if err != nil {
 			slog.Error(err.Error())
 			os.Exit(1)
 		}
-		// stop the spin manager when the app exits
-		defer app.App.SpinnerManager.Stop()
+
+		if !background {
+			// stop the spin manager when the app exits
+			defer app.App.SpinnerManager.Stop()
+		}
 
 		// Create a pool with a result type of *StationLogReport
-		pool := pond.NewResultPool[*logchecker.StationLogReport](20)
+		pool := pond.NewResultPool[*logchecker.StationLogReport](NUM_WORKERS)
 
 		// slice of tasks to keep to access the results
 		var tasks []pond.Result[*logchecker.StationLogReport]
@@ -41,26 +46,16 @@ var runCmd = &cobra.Command{
 		// iterate over every station and create a tasks and add it to the slice
 		for _, station := range app.App.Stations {
 			task := pool.SubmitErr(func() (*logchecker.StationLogReport, error) {
-				fetchingStations.UpdateMessagef("Collecting Station Logs %s", station.Name)
-				time.Sleep(200 * time.Millisecond)
+				fetchingStations.UpdateMessagef("Collecting/Processing Station Logs %s", station.Name)
+
+				// small delay to pace the application hitting the API Server
+				time.Sleep(PROCESS_DELAY * time.Millisecond)
 
 				return app.ProcessStationLog(station, app.Config.Date)
 			})
 
 			tasks = append(tasks, task)
 		}
-
-		// tasks = append(tasks, pool.SubmitErr(func() (*logchecker.StationLogReport, error) {
-		// 	fetchingStations.UpdateMessagef("Collecting Station Logs %s", app.App.Stations[0].Name)
-
-		// 	return app.ProcessStationLog(app.App.Stations[0], app.Config.Date)
-		// }))
-
-		// wait for all tasks to complete in the pool
-		pool.StopAndWait()
-
-		// update spinner message
-		fetchingStations.CompleteWithMessage("Collecting Station Logs ")
 
 		// summary report
 		summaryReport := &logchecker.SummaryReport{
@@ -74,6 +69,8 @@ var runCmd = &cobra.Command{
 			if err != nil {
 				slog.Error(err.Error(), "station", report.Station.Name, "uuid", report.Station.Uuid)
 				summaryReport.TotalIncomplete++
+
+				// report has a failed parsing or GET log request
 				continue
 			}
 
@@ -83,6 +80,9 @@ var runCmd = &cobra.Command{
 				report.PrintReport()
 			}
 		}
+
+		// update spinner message
+		fetchingStations.CompleteWithMessage("Collecting/Processing Station Logs ")
 
 		// completed report
 		summaryReport.PrintReport()
@@ -94,4 +94,7 @@ func init() {
 
 	// Run command local flags
 	runCmd.Flags().BoolP("background", "b", false, "Don't print anything to the console")
+
+	runCmd.Flags().StringP("output", "o", "log/app.log", "Log file location for reports")
+	viper.BindPFlag("output", runCmd.Flags().Lookup("output"))
 }

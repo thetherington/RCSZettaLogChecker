@@ -26,10 +26,12 @@ Try running the following command to start the simulator server:
 		directory, _ := cmd.Flags().GetString("directory")
 
 		// setup the logchecker application
-		if err := setupLogCheckerApp(false); err != nil {
+		app, err := createLogCheckerApp(false, "")
+		if err != nil {
 			slog.Error(err.Error())
 			os.Exit(1)
 		}
+
 		// stop the spin manager when the app exits
 		defer app.App.SpinnerManager.Stop()
 
@@ -39,7 +41,7 @@ Try running the following command to start the simulator server:
 		}
 
 		// Create a pool with a result type of *rawPayload
-		pool := pond.NewResultPool[*rawPayload](20)
+		pool := pond.NewResultPool[*rawPayload](NUM_WORKERS)
 
 		// slice of tasks to keep to access the results
 		var tasks []pond.Result[*rawPayload]
@@ -51,7 +53,9 @@ Try running the following command to start the simulator server:
 		for _, station := range app.App.Stations {
 			task := pool.SubmitErr(func() (*rawPayload, error) {
 				fetchingStations.UpdateMessagef("Collecting Station Logs %s", station.Name)
-				time.Sleep(200 * time.Millisecond)
+
+				// small delay to pace the application hitting the API Server
+				time.Sleep(PROCESS_DELAY * time.Millisecond)
 
 				data, err := app.GetStationLogPayload(station.Uuid, app.Config.Date)
 
