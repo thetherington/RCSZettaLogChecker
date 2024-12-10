@@ -39,8 +39,19 @@ func createLogCheckerApp(background bool, logname string) (*logchecker.Applicati
 		Config: cfg,
 	}
 
+	opts := []logger.Option{
+		logger.WithFileName(logname),
+		logger.WithLevel(slog.LevelDebug),
+		logger.WithVersion(Version),
+		logger.WithZettaHost(app.Config.Address),
+	}
+
+	if background {
+		opts = append(opts, logger.WithBackground())
+	}
+
 	// Set logger
-	logger.Set(background, slog.LevelDebug, logname)
+	logger.Set(opts...)
 
 	// Create the HTTP Client
 	zc := client.New(client.Options{
