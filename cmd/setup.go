@@ -9,6 +9,7 @@ import (
 	"github.com/thetherington/log-checker/pkg/client"
 	"github.com/thetherington/log-checker/pkg/configuration"
 	"github.com/thetherington/log-checker/pkg/logger"
+	"github.com/thetherington/log-checker/pkg/models"
 )
 
 // Number of workers in the worker pool
@@ -19,7 +20,7 @@ const PROCESS_DELAY = 80
 
 // create the log checker application
 func createLogCheckerApp(background bool, logname string) (*logchecker.Application, error) {
-	// "2024-03-21"
+	// "2024-03-21" add one day into the future
 	var dateStr string = time.Now().AddDate(0, 0, 1).Format("2006-01-02")
 
 	if d := viper.GetString("date"); d != "" {
@@ -46,6 +47,7 @@ func createLogCheckerApp(background bool, logname string) (*logchecker.Applicati
 		logger.WithZettaHost(app.Config.Address),
 	}
 
+	// hide the console printing if background is true
 	if background {
 		opts = append(opts, logger.WithBackground())
 	}
@@ -70,6 +72,19 @@ func createLogCheckerApp(background bool, logname string) (*logchecker.Applicati
 	if err := app.InitStations(); err != nil {
 		initStations.ErrorWithMessage(err.Error())
 		return nil, err
+	}
+
+	// check if uuid was provided and filter out station list
+	if uuid := viper.GetString("uuid"); uuid != "" {
+		var stations []*models.Station
+
+		for _, s := range app.App.Stations {
+			if s.Uuid == uuid {
+				stations = append(stations, s)
+			}
+		}
+
+		app.App.Stations = stations
 	}
 
 	initStations.Complete()

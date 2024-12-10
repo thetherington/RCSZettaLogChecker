@@ -76,8 +76,11 @@ func init() {
 	rootCmd.PersistentFlags().IntP("port", "n", 3139, "Zetta API Server Port")
 	viper.BindPFlag("port", rootCmd.PersistentFlags().Lookup("port"))
 
-	rootCmd.PersistentFlags().StringP("date", "t", "", "Optional date to query Zetta Logs (YYYY-MM-DD)")
+	rootCmd.PersistentFlags().String("date", "", "Optional date to query Zetta Logs (YYYY-MM-DD): Default next day")
 	viper.BindPFlag("date", rootCmd.PersistentFlags().Lookup("date"))
+
+	rootCmd.PersistentFlags().String("uuid", "", "Optional station uuid to only collect logs")
+	viper.BindPFlag("uuid", rootCmd.PersistentFlags().Lookup("uuid"))
 }
 
 // initConfig reads in config file and ENV variables if set.

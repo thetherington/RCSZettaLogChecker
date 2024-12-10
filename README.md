@@ -11,11 +11,12 @@ This CLI application can also collect (snapshot) the station logs and run a HTTP
 
 ```
       --config string           config file (default is $HOME/.log-checker.yaml)
-  -t, --date string             Optional date to query Zetta Logs (YYYY-MM-DD)
+      --date string             Optional date to query Zetta Logs (YYYY-MM-DD): Default next day
   -h, --help                    help for log-checker
   -i, --host string             Zetta Server Host (default "localhost")
   -k, --key string              Zetta API Key
   -n, --port int                Zetta API Server Port (default 3139)
+      --uuid string             Optional station uuid to only collect logs
   -p, --zetta_password string   Zetta Password (default "admin")
   -u, --zetta_username string   Zetta Username (default "admin")
 ```
